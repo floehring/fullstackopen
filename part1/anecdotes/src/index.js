@@ -5,17 +5,26 @@ const getRandomInt = (max) => {
     return Math.floor(Math.random() * Math.floor(max))
 }
 
-const Button = ({handleClick}) => {
-    return <button onClick={handleClick}>next anecdote</button>
+const Button = ({handleClick, text}) => {
+    return <button onClick={handleClick}>{text}</button>
 }
 
 const App = (props) => {
     const [selected, setSelected] = useState(0)
+    const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
+
+    const updateVotes = (selected) => {
+        const newVotes = [...votes]
+        newVotes[selected] += 1
+        setVotes(newVotes)
+    }
 
     return (
         <div>
             {props.anecdotes[selected]} <br/>
-            <Button handleClick={() => setSelected(getRandomInt(anecdotes.length))}/>
+            has {votes[selected]} votes <br/>
+            <Button handleClick={() => updateVotes(selected)} text={'vote'}/>
+            <Button handleClick={() => setSelected(getRandomInt(anecdotes.length))} text={'next anecdote'}/>
         </div>
     )
 }
