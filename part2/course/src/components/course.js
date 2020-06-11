@@ -1,7 +1,7 @@
 import React from "react";
 
 const Header = ({course}) => {
-    return <h1>{course.name}</h1>
+    return <h3>{course.name}</h3>
 }
 
 const Total = ({course}) => {
