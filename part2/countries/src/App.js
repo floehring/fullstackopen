@@ -15,15 +15,19 @@ const App = () => {
                 console.log('received countries')
                 setCountries(response.data)
             })
-    },[])
+    }, [])
 
     const handleFilterChange = (event) => {
         setFilterInput(event.target.value)
     }
 
+    // Filter countries to pass into Countries component
+    const filtered = countries.filter(country => country.name.toLowerCase()
+        .includes(filterInput.toLowerCase()))
+
     return (<>
         <Filter filterInput={filterInput} handleFilterChange={handleFilterChange}/>
-        <Countries filterInput={filterInput} countries={countries}/>
+        <Countries changeFilter={handleFilterChange} filtered={filtered}/>
     </>)
 }
 
