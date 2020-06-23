@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
-import axios from 'axios'
-import Filter from "./Filter";
-import Countries from './Countries'
+import Filter from "./components/Filter";
+import Countries from './components/Countries'
+import getAllCountries from "./countries";
 
 const App = () => {
 
@@ -9,12 +9,9 @@ const App = () => {
     const [countries, setCountries] = useState([])
 
     useEffect(() => {
-        axios
-            .get('https://restcountries.eu/rest/v2/all')
-            .then(response => {
-                console.log('received countries')
-                setCountries(response.data)
-            })
+        getAllCountries().then(data => {
+            setCountries(data)
+        })
     }, [])
 
     const handleFilterChange = (event) => {
