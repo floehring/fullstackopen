@@ -48,21 +48,47 @@ const App = () => {
     }
 
     const addPerson = (event) => {
-        console.log(event.target.value)
         event.preventDefault()
+
+        // Prevent action if fields are empty
+        if (newName === '' || newNumber === '') {
+            alert('Fields cannot be empty, please enter valid information')
+            return
+        }
 
         const newPerson = {
             name: newName,
             number: newNumber
         }
 
-        personService
-            .create(newPerson)
-            .then(newPerson => {
-                console.log(`new person added: ${newPerson}`)
-                setPersons(persons.concat(newPerson))
-            })
+        // Search database for existing person
+        const existingPerson = persons.find(person => person.name === newPerson.name)
 
+        // Person does exist in database
+        if (existingPerson !== undefined) {
+
+            if (existingPerson.number === newPerson.number) {
+                // Person has same name and same number, do nothing
+                window.alert(`${newPerson.name} is already added to phonebook.`)
+            } else {
+                // Person has same name and different number, prompt for change
+                const r = window.confirm(`${newPerson.name} is already added to phonebook, 
+                would you like to replace the existing number?`)
+                if (r === true) {
+                    personService
+                        .update(existingPerson.id, newPerson)
+                        .then(data => setPersons(persons.map(p => p.id !== existingPerson.id ? p : data)))
+                }
+            }
+        } else {
+            // Person doesn't already exist in database
+            personService
+                .create(newPerson)
+                .then(newPerson => {
+                    console.log(`new person added: ${newPerson}`)
+                    setPersons(persons.concat(newPerson))
+                })
+        }
         setNewName('')
         setNewNumber('')
     }
