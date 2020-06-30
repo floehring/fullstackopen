@@ -34,6 +34,19 @@ const App = () => {
         setFilter(event.target.value)
     }
 
+    const deletePerson = (id, name) => {
+        const r = window.confirm(`Are you sure that you want to delete ${name}?`)
+
+        if (r === true) {
+            personService
+                .remove(id)
+                .then(_ => {
+                    console.log(`removed person with id ${id}`)
+                    setPersons(persons.filter(person => person.id !== id))
+                })
+        }
+    }
+
     const addPerson = (event) => {
         console.log(event.target.value)
         event.preventDefault()
@@ -64,7 +77,7 @@ const App = () => {
                         newNumber={newNumber} handleNumberChange={handleNumberChange}
             />
             <h2>Numbers</h2>
-            <Persons filterName={filterName} persons={persons}/>
+            <Persons filterName={filterName} persons={persons} onDelete={deletePerson}/>
         </div>
     )
 }

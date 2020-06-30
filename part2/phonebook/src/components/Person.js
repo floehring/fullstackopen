@@ -1,5 +1,8 @@
 import React from "react";
 
-const Person = ({name, number}) => <p>{name} {number}</p>
+const Person = ({person, onDelete}) => <li>
+    {person.name} {person.number}
+    <button onClick={() => onDelete(person.id, person.name)}>delete</button>
+</li>
 
 export default Person
