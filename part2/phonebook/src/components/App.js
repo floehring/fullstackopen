@@ -3,13 +3,18 @@ import Filter from "./Filter";
 import PersonForm from "./PersonForm";
 import Persons from "./Persons";
 import personService from '../services/persons'
+import Notification from "./Notification";
 
+const SUCCESS = 'success'
+const ERROR = 'error'
 
 const App = () => {
     const [persons, setPersons] = useState([])
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [filterName, setFilter] = useState('')
+    const [notificationMsg, setNotificationMsg] = useState(null)
+    const [notificationType, setNotificationType] = useState(null)
 
     useEffect(() => {
         personService
@@ -31,7 +36,18 @@ const App = () => {
     }
 
     const handleFilterChange = (event) => {
+        // console.log(event.target.value)
         setFilter(event.target.value)
+    }
+
+    const showNotification = (msg, type) => {
+        setNotificationMsg(msg)
+        setNotificationType(type)
+        console.log(notificationType)
+        setTimeout(() => {
+            setNotificationMsg(null)
+            setNotificationType(null)
+        }, 5000)
     }
 
     const deletePerson = (id, name) => {
@@ -43,6 +59,11 @@ const App = () => {
                 .then(_ => {
                     console.log(`removed person with id ${id}`)
                     setPersons(persons.filter(person => person.id !== id))
+                    showNotification(`Deleted ${name}`, SUCCESS)
+                })
+                .catch(error => {
+                    console.log(error)
+                    showNotification(`Error removing ${name} from the phonebook`, ERROR)
                 })
         }
     }
@@ -77,7 +98,11 @@ const App = () => {
                 if (r === true) {
                     personService
                         .update(existingPerson.id, newPerson)
-                        .then(data => setPersons(persons.map(p => p.id !== existingPerson.id ? p : data)))
+                        .then(data => {
+                            setPersons(persons.map(p => p.id !== existingPerson.id ? p : data))
+                            showNotification(`Updated ${newName}`, SUCCESS)
+                        })
+                        .catch(error => showNotification(`Information of ${newName} has already been removed from server`, ERROR))
                 }
             }
         } else {
@@ -87,17 +112,21 @@ const App = () => {
                 .then(newPerson => {
                     console.log(`new person added: ${newPerson}`)
                     setPersons(persons.concat(newPerson))
+                    showNotification(`Added ${newName}`, SUCCESS)
                 })
+                .catch(error => showNotification(`Couldn't add ${newName} to the phonebook.`, ERROR))
         }
         setNewName('')
         setNewNumber('')
     }
 
+
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={notificationMsg} type={notificationType}/>
             <Filter filterName={filterName} handleFilterChange={handleFilterChange}/>
-            <h2>add a new</h2>
+            <h2>add a new Person</h2>
             <PersonForm addPerson={addPerson}
                         newName={newName} handleNameChange={handleNameChange}
                         newNumber={newNumber} handleNumberChange={handleNumberChange}
