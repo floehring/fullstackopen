@@ -102,7 +102,7 @@ const App = () => {
                             setPersons(persons.map(p => p.id !== existingPerson.id ? p : data))
                             showNotification(`Updated ${newName}`, SUCCESS)
                         })
-                        .catch(error => showNotification(`Information of ${newName} has already been removed from server`, ERROR))
+                        .catch(error => showNotification(error.response.data.error, ERROR))
                 }
             }
         } else {
@@ -114,7 +114,7 @@ const App = () => {
                     setPersons(persons.concat(newPerson))
                     showNotification(`Added ${newName}`, SUCCESS)
                 })
-                .catch(error => showNotification(`Couldn't add ${newName} to the phonebook.`, ERROR))
+                .catch(error => showNotification(error.response.data.error, ERROR))
         }
         setNewName('')
         setNewNumber('')
