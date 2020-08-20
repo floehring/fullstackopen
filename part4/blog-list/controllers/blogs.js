@@ -5,22 +5,16 @@ Defines all the logic regarding routes and database operations in the Blogs cont
 const blogListRouter = require('express').Router()
 const Blog = require('../models/blog')
 
-blogListRouter.get('/', ((req, res) => {
-    Blog
-        .find({})
-        .then(blogs => {
-            res.json(blogs)
-        })
-}))
+blogListRouter.get('/', async (req, res) => {
+    const blogs = await Blog.find({})
+    res.json(blogs)
+})
 
-blogListRouter.post('/', (request, response) => {
+blogListRouter.post('/', async (request, response) => {
     const blog = new Blog(request.body)
 
-    blog
-        .save()
-        .then(result => {
-            response.status(201).json(result)
-        })
+    const result = await blog.save()
+    response.status(201).json(result)
 })
 
 module.exports = blogListRouter
