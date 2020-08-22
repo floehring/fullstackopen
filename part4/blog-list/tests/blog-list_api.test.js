@@ -49,6 +49,24 @@ test('blogs have an id property', async () => {
     response.body.forEach(blog => expect(blog.id).toBeDefined())
 })
 
+test('blog is saved correctly', async () => {
+    const blog = {
+        title: 'Canonical string reduction',
+        author: 'Edsger W. Dijkstra',
+        url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+        likes: 12,
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(blog)
+        .expect(201)
+
+    const blogs = await api.get('/api/blogs')
+
+    expect(blogs.body).toHaveLength(initialBlogs.length + 1)
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
