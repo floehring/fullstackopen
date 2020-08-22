@@ -11,10 +11,17 @@ blogListRouter.get('/', async (req, res) => {
 })
 
 blogListRouter.post('/', async (request, response) => {
-    const blog = new Blog(request.body)
 
-    const result = await blog.save()
-    response.status(201).json(result)
+    const newBlog = request.body
+
+    if (!newBlog.url && !newBlog.title) {
+        response.status(400).end()
+    } else {
+        const blog = new Blog(request.body)
+        const result = await blog.save()
+        response.status(201).json(result)
+    }
+
 })
 
 module.exports = blogListRouter
