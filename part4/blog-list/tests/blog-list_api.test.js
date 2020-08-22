@@ -83,6 +83,18 @@ describe('when saving a blog', () => {
         expect(newBlog.body.likes)
             .toBe(0)
     })
+
+    test('400 is returned if url and title are missing', async () => {
+        const blog = {
+            author: 'Edsger W. Dijkstra',
+        }
+
+        await api
+            .post('/api/blogs')
+            .set('Content-Type', 'application/json')
+            .send(blog)
+            .expect(400)
+    })
 });
 
 
