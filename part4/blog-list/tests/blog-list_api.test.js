@@ -49,23 +49,42 @@ test('blogs have an id property', async () => {
     response.body.forEach(blog => expect(blog.id).toBeDefined())
 })
 
-test('blog is saved correctly', async () => {
-    const blog = {
-        title: 'Canonical string reduction',
-        author: 'Edsger W. Dijkstra',
-        url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
-        likes: 12,
-    }
+describe('when saving a blog', () => {
+    test('its saved correctly', async () => {
+        const blog = {
+            title: 'Canonical string reduction',
+            author: 'Edsger W. Dijkstra',
+            url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+            likes: 12,
+        }
 
-    await api
-        .post('/api/blogs')
-        .send(blog)
-        .expect(201)
+        await api
+            .post('/api/blogs')
+            .send(blog)
+            .expect(201)
 
-    const blogs = await api.get('/api/blogs')
+        const blogs = await api.get('/api/blogs')
 
-    expect(blogs.body).toHaveLength(initialBlogs.length + 1)
-})
+        expect(blogs.body).toHaveLength(initialBlogs.length + 1)
+    })
+
+    test('likes default to 0 if not specified', async () => {
+        const blog = {
+            title: 'Canonical string reduction',
+            author: 'Edsger W. Dijkstra',
+            url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+        }
+
+        const newBlog = await api
+            .post('/api/blogs')
+            .set('Content-Type', 'application/json')
+            .send(blog)
+
+        expect(newBlog.body.likes)
+            .toBe(0)
+    })
+});
+
 
 afterAll(() => {
     mongoose.connection.close()
