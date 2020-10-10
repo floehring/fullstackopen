@@ -34,6 +34,16 @@ test('blogs have an id property', async () => {
     response.body.forEach(blog => expect(blog.id).toBeDefined())
 })
 
+test('blogs are updated correctly', async () => {
+    const startBlogs = await helper.blogsInDb()
+    const startBlog = startBlogs[0]
+
+    await api
+        .put(`/api/blogs/${ startBlog.id }`)
+        .send({ ...startBlog, likes: 10 })
+        .expect({ ...startBlog, likes: 10 })
+})
+
 describe('deletion of a blog', () => {
     test('succeeds with status code 204 if id is valid', async () => {
         const blogsAtStart = await helper.blogsInDb()
