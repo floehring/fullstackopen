@@ -34,6 +34,9 @@ app.use(cors())
 app.use(express.json())
 // app.use(middleware.requestLogger)
 
+// Taking the router for user related routes into use.
+app.use('/api/users', usersRouter)
+
 // Taking the router for blog related routes into use.
 app.use('/api/blogs', blogListRouter)
 
