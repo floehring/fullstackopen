@@ -37,6 +37,41 @@ describe('when there is initially one user in db', () => {
         const usernames = usersAtEnd.map(user => user.username)
         expect(usernames).toContain(newUser.username)
     })
+
+    test('creation fails with duplicate username', async () => {
+        const newUser = {
+            username: 'clearck',
+            name: 'Felix Loehring',
+            password: 'mypw123'
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+
+        const dupeUser = {
+            username: 'clearck',
+            name: 'Felix Loeh',
+            password: 'myfd123'
+        }
+
+        await api
+            .post('/api/users')
+            .send(dupeUser)
+            .expect(400)
+    })
+
+    test('creation fails with missing password', async () => {
+        const newUser = {
+            username: 'clearck',
+            name: 'Felix Loehring',
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+    })
 })
 
 afterAll(() => {
