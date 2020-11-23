@@ -4,9 +4,13 @@ Defines all the logic regarding routes and database operations in the Blogs cont
 
 const blogListRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 blogListRouter.get('/', async (req, res) => {
-    const blogs = await Blog.find({})
+    const blogs = await Blog
+        .find({})
+        // select specific fields to be returned by the populate
+        .populate('user', 'username name id')
     res.json(blogs)
 })
 
@@ -17,7 +21,8 @@ blogListRouter.post('/', async (request, response) => {
     if (!newBlog.url && !newBlog.title) {
         response.status(400).end()
     } else {
-        const blog = new Blog(request.body)
+        const user = await User.findOne()
+        const blog = new Blog({ ...request.body, user: user.id })
         const result = await blog.save()
         response.status(201).json(result)
     }
@@ -39,6 +44,7 @@ blogListRouter.put('/:id', async (request, response, next) => {
         author: body.author,
         url: body.url,
         likes: body.likes,
+        user: body.user,
     }
 
     const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
