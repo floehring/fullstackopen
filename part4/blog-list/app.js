@@ -10,6 +10,7 @@ const usersRouter = require('./controllers/users')
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
 const morgan = require('morgan')
+const loginRouter = require('./controllers/login')
 
 logger.info('connecting to', config.MONGODB_URI)
 
@@ -39,6 +40,9 @@ app.use('/api/users', usersRouter)
 
 // Taking the router for blog related routes into use.
 app.use('/api/blogs', blogListRouter)
+
+// Taking the router for login related routes into use
+app.use('/api/login', loginRouter)
 
 // app.use(middleware.unknownEndpoint)
 // app.use(middleware.errorHandler)
