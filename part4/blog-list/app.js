@@ -35,6 +35,7 @@ app.use(cors())
 // app.use(express.static('build'))
 app.use(express.json())
 app.use(middleware.requestLogger)
+app.use(middleware.tokenExtractor)
 
 // Taking the router for user related routes into use.
 app.use('/api/users', usersRouter)
