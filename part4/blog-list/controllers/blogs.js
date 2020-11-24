@@ -1,10 +1,11 @@
 /*
 Defines all the logic regarding routes and database operations in the Blogs context.
- */
+*/
 
 const blogListRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
 blogListRouter.get('/', async (req, res) => {
     const blogs = await Blog
@@ -18,10 +19,23 @@ blogListRouter.post('/', async (request, response) => {
 
     const newBlog = request.body
 
+    const token = getTokenFrom(request)
+
+    if (!token) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+
+    if (!decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const user = await User.findById(decodedToken.id)
+
     if (!newBlog.url && !newBlog.title) {
         response.status(400).end()
     } else {
-        const user = await User.findOne()
         const blog = new Blog({ ...request.body, user: user.id })
         const result = await blog.save()
         response.status(201).json(result)
@@ -47,8 +61,20 @@ blogListRouter.put('/:id', async (request, response, next) => {
         user: body.user,
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+    const updatedBlog = await Blog
+        .findByIdAndUpdate(request.params.id, blog, { new: true })
+
     response.json(updatedBlog)
 })
+
+const getTokenFrom = req => {
+    const auth = req.get('authorization')
+
+    if (auth && auth.toLowerCase().startsWith('bearer ')) {
+        return auth.substring(7)
+    }
+
+    return null
+}
 
 module.exports = blogListRouter
