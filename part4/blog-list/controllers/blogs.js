@@ -12,13 +12,11 @@ blogListRouter.get('/', async (req, res) => {
         .find({})
         // select specific fields to be returned by the populate
         .populate('user', 'username name id')
-    res.json(blogs)
+    res.json(blogs.map(blog => blog.toJSON()))
 })
 
 blogListRouter.post('/', async (request, response) => {
-
     const newBlog = request.body
-
     const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
     if (!decodedToken.id) {
@@ -40,8 +38,24 @@ blogListRouter.post('/', async (request, response) => {
 blogListRouter.delete('/:id', async (request, response) => {
     const id = request.params.id
 
-    await Blog.findByIdAndRemove(id)
-    response.status(204).end()
+    const decToken = jwt.verify(request.token, process.env.SECRET)
+
+    // Get the blog that should be deleted
+    const blogToDelete = await Blog.findById(id)
+    console.log(blogToDelete.user)
+
+    // Check if there's a blog with the specified id
+    if (blogToDelete) {
+        // Check the if the creator of the blog is the one that wants to delete it
+        if (blogToDelete.user === decToken.id) {
+            await Blog.findByIdAndRemove(id)
+            response.status(204).end()
+        } else {
+            response.status(401).json({ error: 'insufficient permissions' })
+        }
+    } else {
+        response.status(400).json({ error: 'no blog found' })
+    }
 })
 
 blogListRouter.put('/:id', async (request, response, next) => {
