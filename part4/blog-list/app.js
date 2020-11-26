@@ -3,6 +3,7 @@ Contains the main app which is loaded by the index file.
  */
 const config = require('./utils/config')
 const express = require('express')
+require('express-async-errors')
 const app = express()
 const cors = require('cors')
 const blogListRouter = require('./controllers/blogs')
@@ -25,11 +26,11 @@ mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology
 
 morgan.token('content', req => !req.body ? '' : JSON.stringify(req.body))
 
-app.use(
-    morgan(
-        ':method :url :status :res[content-length] - :response-time ms :content'
-    )
-)
+// app.use(
+//     morgan(
+//         ':method :url :status :res[content-length] - :response-time ms :content'
+//     )
+// )
 
 app.use(cors())
 // app.use(express.static('build'))
