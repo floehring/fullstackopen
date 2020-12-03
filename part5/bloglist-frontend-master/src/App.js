@@ -40,11 +40,6 @@ const App = () => {
     </form>
   );
 
-  const blogList = () => blogs.map(blog =>
-    <Blog key={blog.id} blog={blog}/>
-  );
-
-
   const handleLogin = async (event) => {
     event.preventDefault();
     console.log('logging in with', username, password);
@@ -64,13 +59,19 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
       {user === null
-        ? loginForm()
+        ? <div>
+          <h2>Log in to application</h2>
+          {loginForm()}
+        </div>
         : <div>
+          <h2>blogs</h2>
           <p>{user.name} logged in</p>
-          {blogList()}
-        </div>}
+          {blogs.map(blog =>
+            <Blog key={blog.id} blog={blog}/>
+          )}
+        </div>
+      }
     </div>
   );
 };
