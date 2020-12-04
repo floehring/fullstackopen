@@ -10,10 +10,22 @@ const App = () => {
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
 
+  // load existing blogs
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs(blogs)
     );
+  }, []);
+
+  // check if user has already logged in once
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser');
+
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token);
+    }
   }, []);
 
   const loginForm = () => (
@@ -46,6 +58,12 @@ const App = () => {
 
     try {
       const user = await loginService.login({ username, password });
+
+      // persist login information https://developer.mozilla.org/en-US/docs/Web/API/Storage
+      window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user));
+
+      blogService.setToken(user.token);
+
       setUser(user);
       setUsername('');
       setPassword('');
@@ -67,6 +85,7 @@ const App = () => {
         : <div>
           <h2>blogs</h2>
           <p>{user.name} logged in</p>
+          <button onClick={() => window.localStorage.removeItem('loggedBloglistUser')}>logout</button>
           {blogs.map(blog =>
             <Blog key={blog.id} blog={blog}/>
           )}
