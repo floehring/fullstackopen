@@ -4,7 +4,10 @@ import blogService from './services/blogs';
 import loginService from './services/login';
 
 const App = () => {
+  const emptyBlog = { title: '', author: '', url: '' };
+
   const [blogs, setBlogs] = useState([]);
+  const [newBlog, setNewBlog] = useState(emptyBlog);
   const [errorMessage, setErrorMessage] = useState(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -52,6 +55,46 @@ const App = () => {
     </form>
   );
 
+  const handleTitleChange = (event) => {
+    setNewBlog({ ...newBlog, title: event.target.value });
+  };
+
+  const handleAuthorChange = (event) => {
+    setNewBlog({ ...newBlog, author: event.target.value });
+  };
+
+  const handleUrlChange = (event) => {
+    setNewBlog({ ...newBlog, url: event.target.value });
+  };
+
+  const blogForm = () => (
+    <form onSubmit={addBlog}>
+      title:<input type="text" onChange={handleTitleChange} value={newBlog.title}/><br/>
+      author:<input type="text" onChange={handleAuthorChange} value={newBlog.author}/><br/>
+      url:<input type="text" onChange={handleUrlChange} value={newBlog.url}/><br/>
+
+      <button type='submit'>create</button>
+    </form>
+  );
+
+  const addBlog = async (event) => {
+    event.preventDefault();
+    // TODO make title and author required (client and backend side)
+
+    const blogObject = {
+      title: newBlog.title,
+      author: newBlog.author,
+      url: newBlog.url
+    };
+
+    blogService
+      .create(blogObject)
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog));
+        setNewBlog(emptyBlog);
+      });
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
     console.log('logging in with', username, password);
@@ -75,6 +118,17 @@ const App = () => {
     }
   };
 
+  const handleLogout = (event) => {
+    // Delete user from local storage
+    window.localStorage.removeItem('loggedBloglistUser');
+
+    // Clear currently logged in user
+    setUser(null);
+
+    // Clear blog form
+    setNewBlog(emptyBlog);
+  };
+
   return (
     <div>
       {user === null
@@ -85,7 +139,9 @@ const App = () => {
         : <div>
           <h2>blogs</h2>
           {user.name} logged in
-          <button onClick={() => window.localStorage.removeItem('loggedBloglistUser')}>logout</button>
+          <button onClick={handleLogout}>logout</button>
+          <p></p>
+          {blogForm()}
           <p></p>
           {blogs.map(blog =>
             <Blog key={blog.id} blog={blog}/>
