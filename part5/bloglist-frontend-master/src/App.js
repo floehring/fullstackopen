@@ -2,16 +2,21 @@ import React, { useState, useEffect } from 'react';
 import Blog from './components/Blog';
 import blogService from './services/blogs';
 import loginService from './services/login';
+import Notification from './components/Notification';
+
+const SUCCESS = 'success';
+const ERROR = 'error';
 
 const App = () => {
   const emptyBlog = { title: '', author: '', url: '' };
 
   const [blogs, setBlogs] = useState([]);
   const [newBlog, setNewBlog] = useState(emptyBlog);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
+  const [notificationMsg, setNotificationMsg] = useState(null);
+  const [notificationType, setNotificationType] = useState(null);
 
   // load existing blogs
   useEffect(() => {
@@ -92,6 +97,7 @@ const App = () => {
       .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog));
         setNewBlog(emptyBlog);
+        showNotification(`added new blog ${returnedBlog.title} by ${returnedBlog.author}`, SUCCESS);
       });
   };
 
@@ -110,11 +116,10 @@ const App = () => {
       setUser(user);
       setUsername('');
       setPassword('');
+
+      showNotification(`Logged in as ${user.username}`, SUCCESS);
     } catch (e) {
-      setErrorMessage('Wrong Credentials');
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
+      showNotification('Wrong Credentials', ERROR);
     }
   };
 
@@ -127,22 +132,35 @@ const App = () => {
 
     // Clear blog form
     setNewBlog(emptyBlog);
+    showNotification('Logged out', SUCCESS);
+  };
+
+  const showNotification = (msg, type) => {
+    setNotificationMsg(msg);
+    setNotificationType(type);
+    console.log(notificationType);
+    setTimeout(() => {
+      setNotificationMsg(null);
+      setNotificationType(null);
+    }, 5000);
   };
 
   return (
     <div>
       {user === null
         ? <div>
+          <Notification message={notificationMsg} type={notificationType}/>
           <h2>Log in to application</h2>
           {loginForm()}
         </div>
         : <div>
           <h2>blogs</h2>
+          <Notification message={notificationMsg} type={notificationType}/>
           {user.name} logged in
           <button onClick={handleLogout}>logout</button>
-          <p></p>
+          <br/>
           {blogForm()}
-          <p></p>
+          <br/>
           {blogs.map(blog =>
             <Blog key={blog.id} blog={blog}/>
           )}
